@@ -1,5 +1,7 @@
 package org.apache.flink.streaming.examples.tasks;
 
+import java.util.Objects;
+
 public class LogRecord {
 
 	private String machine;
@@ -35,5 +37,21 @@ public class LogRecord {
 
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		LogRecord logRecord = (LogRecord) o;
+		return machine.equals(logRecord.machine) &&
+			timestamp.equals(logRecord.timestamp) &&
+			type.equals(logRecord.type) &&
+			name.equals(logRecord.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(machine, timestamp, type, name);
 	}
 }

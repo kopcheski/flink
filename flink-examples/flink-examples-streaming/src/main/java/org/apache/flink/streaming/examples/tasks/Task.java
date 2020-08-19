@@ -1,5 +1,7 @@
 package org.apache.flink.streaming.examples.tasks;
 
+import java.util.Objects;
+
 public class Task {
 
 	private String machine;
@@ -34,5 +36,19 @@ public class Task {
 
 	public void setStopTimestamp(String stopTimestamp) {
 		this.stopTimestamp = stopTimestamp;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Task task = (Task) o;
+		return machine.equals(task.machine) &&
+			name.equals(task.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(machine, name);
 	}
 }
