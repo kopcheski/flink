@@ -8,7 +8,7 @@ import org.apache.flink.util.Collector;
 
 public class EventMapper extends RichFlatMapFunction<LogRecord, Task> {
 
-	MapState<String, Task> openedTasks;
+	private transient MapState<String, Task> openedTasks;
 
 	@Override
 	public void open(Configuration conf) {
@@ -28,8 +28,9 @@ public class EventMapper extends RichFlatMapFunction<LogRecord, Task> {
 			System.out.println(String.format("Task %s stopped at %s", task.getName(), task.getStopTimestamp()));
 			openedTasks.remove(logRecord.getName());
 		} else {
-//			System.out.println(String.format("Event of type %s was ignored", logRecord.getType()));
+			System.out.println(String.format("Event of type %s was ignored", logRecord.getType()));
 		}
 
 	}
+
 }

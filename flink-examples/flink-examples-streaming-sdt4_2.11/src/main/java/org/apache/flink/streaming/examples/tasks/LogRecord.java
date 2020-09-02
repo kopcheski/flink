@@ -1,7 +1,12 @@
 package org.apache.flink.streaming.examples.tasks;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.util.Objects;
 
+@JsonSerialize
+@JsonDeserialize
 public class LogRecord {
 
 	private String machine;
@@ -11,6 +16,9 @@ public class LogRecord {
 	private String type;
 
 	private String name;
+
+	public LogRecord() {
+	}
 
 	public LogRecord(String machine, String timestamp, String type, String name) {
 		this.machine = machine;
