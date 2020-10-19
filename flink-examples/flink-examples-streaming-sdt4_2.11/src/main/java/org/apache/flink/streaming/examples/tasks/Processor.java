@@ -1,11 +1,12 @@
 package org.apache.flink.streaming.examples.tasks;
 
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
+import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -17,7 +18,7 @@ public class Processor {
 
 	public static void main(String[] args) throws Exception {
 		String kafkaTopic = "events";
-		String broker = "localhost:9092";
+		String broker = "kafka:9092";
 
 		Properties kafkaProps = new Properties();
 		kafkaProps.setProperty("bootstrap.servers", broker);
@@ -37,14 +38,25 @@ public class Processor {
 
 		DataStreamSource<LogRecord> logRecordDataStreamSource = env.addSource(kafka);
 
-		DataStream<Task> tasks = logRecordDataStreamSource
+		DataStreamSink<Task> tasks = logRecordDataStreamSource
 			.keyBy(LogRecord::getMachine)
-			.flatMap(new EventMapper());
+			.flatMap(new EventMapper())
+			.addSink(JdbcSink.sink(
+				"insert into task (machine, name, start_timestamp, stop_timestamp) values (?,?,?,?)",
+				(ps, task) -> {
+					ps.setString(1, task.getMachine());
+					ps.setString(2, task.getName());
+					ps.setString(3, task.getStartTimestamp());
+					ps.setString(4, task.getStopTimestamp());
+				},
+				new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
+					.withUrl("jdbc:postgresql://postgres:5432/database")
+					.withUsername("postgres")
+					.withPassword("postgres")
+					.withDriverName("org.postgresql.Driver")
+					.build()));
 
-//		tasks.print();
-
-		env.execute("State machine job");
-
+		env.execute("edge pipeline");
 	}
 
 	static class CustomSchema implements DeserializationSchema<LogRecord> {
