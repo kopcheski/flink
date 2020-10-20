@@ -10,6 +10,7 @@ import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -21,9 +22,9 @@ public class Processor {
 		String broker = "kafka:9092";
 
 		Properties kafkaProps = new Properties();
-		kafkaProps.setProperty("bootstrap.servers", broker);
-		kafkaProps.setProperty("group.id", "flink.consumer");
-		kafkaProps.setProperty("enable.auto.commit", "false");
+		kafkaProps.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, broker);
+		kafkaProps.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "flink.consumer");
+		kafkaProps.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
 		FlinkKafkaConsumer<LogRecord> kafka = new FlinkKafkaConsumer(
 			kafkaTopic, new CustomSchema(), kafkaProps);
