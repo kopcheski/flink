@@ -19,7 +19,7 @@ public class Processor {
 
 	public static void main(String[] args) throws Exception {
 		String kafkaTopic = "events";
-		String broker = "kafka:9092";
+		String broker = "kafka:29092";
 
 		Properties kafkaProps = new Properties();
 		kafkaProps.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, broker);
