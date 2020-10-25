@@ -29,7 +29,7 @@ public class Processor {
 		FlinkKafkaConsumer<LogRecord> kafka = new FlinkKafkaConsumer(
 			kafkaTopic, new CustomSchema(), kafkaProps);
 		kafka.setStartFromGroupOffsets();
-//		kafka.setStartFromEarliest();
+		kafka.setStartFromEarliest();
 		kafka.setCommitOffsetsOnCheckpoints(true);
 
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -37,13 +37,11 @@ public class Processor {
 		env.enableCheckpointing(1000L, CheckpointingMode.EXACTLY_ONCE);
 		env.getCheckpointConfig().setPreferCheckpointForRecovery(true);
 
-		DataStreamSource<LogRecord> logRecordDataStreamSource = env.addSource(kafka);
-
-		DataStreamSink<Task> tasks = logRecordDataStreamSource
+		DataStreamSink<Task> tasks = env.addSource(kafka)
 			.keyBy(LogRecord::getMachine)
 			.flatMap(new EventMapper())
 			.addSink(JdbcSink.sink(
-				"insert into task (machine, name, start_timestamp, stop_timestamp) values (?,?,?,?)",
+				"insert into public.task (machine, name, start_timestamp, stop_timestamp) values (?,?,?,?)",
 				(ps, task) -> {
 					ps.setString(1, task.getMachine());
 					ps.setString(2, task.getName());
@@ -57,6 +55,7 @@ public class Processor {
 					.withDriverName("org.postgresql.Driver")
 					.build()));
 
+		tasks.name("Tasks sink");
 		env.execute("edge pipeline");
 	}
 
