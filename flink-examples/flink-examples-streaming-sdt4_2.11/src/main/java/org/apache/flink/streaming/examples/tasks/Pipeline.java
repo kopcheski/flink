@@ -27,7 +27,6 @@ public class Pipeline {
 		FlinkKafkaConsumer<LogRecord> kafka = new FlinkKafkaConsumer(
 			kafkaTopic, new CustomSchema(), kafkaProps);
 		kafka.setStartFromGroupOffsets();
-		kafka.setStartFromEarliest();
 		kafka.setCommitOffsetsOnCheckpoints(true);
 
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
