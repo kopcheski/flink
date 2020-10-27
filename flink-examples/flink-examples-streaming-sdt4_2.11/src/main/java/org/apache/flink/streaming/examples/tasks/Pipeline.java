@@ -5,6 +5,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -34,12 +35,18 @@ public class Pipeline {
 		env.enableCheckpointing(1000L, CheckpointingMode.EXACTLY_ONCE);
 		env.getCheckpointConfig().setPreferCheckpointForRecovery(true);
 
-		DataStreamSink<Task> tasks = env.addSource(kafka)
-			.keyBy(LogRecord::getMachine)
-			.flatMap(new EventMapper())
-			.addSink(TaskSink.sink());
+		KeyedStream<LogRecord, String> eventsStream = env.addSource(kafka)
+			.keyBy(LogRecord::getMachine);
 
-		tasks.name("Tasks sink");
+		eventsStream
+			.addSink(EventSink.sink())
+			.name("Events sink");
+
+		eventsStream
+			.flatMap(new EventMapper())
+			.addSink(TaskSink.sink())
+			.name("Tasks sink");
+
 		env.execute("edge pipeline");
 	}
 
