@@ -21,11 +21,13 @@ public class EventMapper extends RichFlatMapFunction<LogRecord, Task> {
 		if (logRecord.getType().equals("start")) {
 			Task task = new Task(logRecord.getMachine(), logRecord.getTimestamp(), logRecord.getName());
 			openedTasks.put(task.getName(), task);
+			out.collect(task);
 			System.out.println(String.format("Task %s started at %s", task.getName(), task.getStartTimestamp()));
 		} else if (logRecord.getType().equals("stop")) {
 			Task task = openedTasks.get(logRecord.getName());
 			task.setStopTimestamp(logRecord.getTimestamp());
 			System.out.println(String.format("Task %s stopped at %s", task.getName(), task.getStopTimestamp()));
+			out.collect(task);
 			openedTasks.remove(logRecord.getName());
 		} else {
 			System.out.println(String.format("Event of type %s was ignored", logRecord.getType()));

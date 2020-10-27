@@ -40,7 +40,7 @@ public class LogRecordProducer {
 		kafkaProducer.flush();
 	}
 
-	private static List<LogRecord> run() {
+	static List<LogRecord> run() {
 		List<LogRecord> logRecords = new ArrayList<>();
 		logRecords.add(create("22:30", "start", "A"));
 		logRecords.add(create("22:31", "none", ""));
@@ -65,7 +65,7 @@ public class LogRecordProducer {
 		return logRecords;
 	}
 
-	private static LogRecord create(String timestamp, String type, String name) {
+	static LogRecord create(String timestamp, String type, String name) {
 		return new LogRecord(timestamp, type, name);
 	}
 

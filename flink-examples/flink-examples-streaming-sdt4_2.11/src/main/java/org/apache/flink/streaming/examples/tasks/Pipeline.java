@@ -2,12 +2,9 @@ package org.apache.flink.streaming.examples.tasks;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
-import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -15,7 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import java.io.IOException;
 import java.util.Properties;
 
-public class Processor {
+public class Pipeline {
 
 	public static void main(String[] args) throws Exception {
 		String kafkaTopic = "events";
@@ -40,20 +37,7 @@ public class Processor {
 		DataStreamSink<Task> tasks = env.addSource(kafka)
 			.keyBy(LogRecord::getMachine)
 			.flatMap(new EventMapper())
-			.addSink(JdbcSink.sink(
-				"insert into public.task (machine, name, start_timestamp, stop_timestamp) values (?,?,?,?)",
-				(ps, task) -> {
-					ps.setString(1, task.getMachine());
-					ps.setString(2, task.getName());
-					ps.setString(3, task.getStartTimestamp());
-					ps.setString(4, task.getStopTimestamp());
-				},
-				new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-					.withUrl("jdbc:postgresql://postgres:5432/database")
-					.withUsername("postgres")
-					.withPassword("postgres")
-					.withDriverName("org.postgresql.Driver")
-					.build()));
+			.addSink(TaskSink.sink());
 
 		tasks.name("Tasks sink");
 		env.execute("edge pipeline");
