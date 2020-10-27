@@ -1,8 +1,9 @@
 CREATE TABLE log_record (
 	machine varchar,
 	name varchar,
-	log_record_timestamp varchar primary key,
-	type varchar
+	log_record_timestamp varchar,
+	type varchar,
+	sequence integer primary key
 );
 
 CREATE TABLE task (

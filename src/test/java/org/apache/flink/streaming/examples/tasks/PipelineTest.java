@@ -7,9 +7,10 @@ import org.apache.flink.test.util.MiniClusterWithClientResource;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.apache.flink.streaming.examples.tasks.LogRecordProducer.create;
+import static org.apache.flink.streaming.examples.tasks.producer.LogRecordProducer.create;
 import static org.junit.Assert.assertEquals;
 
 public class PipelineTest {

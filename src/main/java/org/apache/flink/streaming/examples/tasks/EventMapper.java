@@ -30,7 +30,7 @@ public class EventMapper extends RichFlatMapFunction<LogRecord, Task> {
 			out.collect(task);
 			openedTasks.remove(logRecord.getName());
 		} else {
-			System.out.println(String.format("Event of type %s was ignored", logRecord.getType()));
+			System.out.println(String.format("Event of sequence %d was ignored", logRecord.getSequence()));
 		}
 
 	}

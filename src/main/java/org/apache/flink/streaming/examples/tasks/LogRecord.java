@@ -9,6 +9,8 @@ import java.util.Objects;
 @JsonDeserialize
 public class LogRecord {
 
+	private long sequence;
+
 	private String machine;
 
 	private String timestamp;
@@ -20,15 +22,16 @@ public class LogRecord {
 	public LogRecord() {
 	}
 
-	public LogRecord(String machine, String timestamp, String type, String name) {
+	public LogRecord(String machine, String timestamp, String type, String name, long sequence) {
 		this.machine = machine;
 		this.timestamp = timestamp;
 		this.type = type;
 		this.name = name;
+		this.sequence = sequence;
 	}
 
-	public LogRecord(String timestamp, String type, String name) {
-		this("1234", timestamp, type, name);
+	public LogRecord(String timestamp, String type, String name, long sequence) {
+		this("1234", timestamp, type, name, sequence);
 	}
 
 	public String getMachine() {
@@ -47,19 +50,25 @@ public class LogRecord {
 		return name;
 	}
 
+	public long getSequence() {
+		return sequence;
+	}
+
+	public void setSequence(long sequence) {
+		this.sequence = sequence;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		LogRecord logRecord = (LogRecord) o;
-		return machine.equals(logRecord.machine) &&
-			timestamp.equals(logRecord.timestamp) &&
-			type.equals(logRecord.type) &&
-			name.equals(logRecord.name);
+		return sequence == logRecord.sequence &&
+				machine.equals(logRecord.machine);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(machine, timestamp, type, name);
+		return Objects.hash(sequence, machine);
 	}
 }

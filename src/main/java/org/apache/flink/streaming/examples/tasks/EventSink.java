@@ -10,7 +10,7 @@ public class EventSink {
 	public static SinkFunction<LogRecord> sink() {
 		// jdbc sinks are at least once. so it can only have the same output as a once and only once using upserts.
 		return JdbcSink.sink(
-			"insert into public.log_record (machine, name, log_record_timestamp, type) values (?,?,?,?) " +
+			"insert into public.log_record (machine, name, log_record_timestamp, type, sequence) values (?, ?,?,?,?) " +
 				"on conflict on constraint log_record_pkey " +
 				"do nothing ",
 			(ps, logRecord) -> {
@@ -18,6 +18,7 @@ public class EventSink {
 				ps.setString(2, logRecord.getName());
 				ps.setString(3, logRecord.getTimestamp());
 				ps.setString(4, logRecord.getType());
+				ps.setLong(5, logRecord.getSequence());
 			},
 			JdbcExecutionOptions.builder()
 				.withBatchSize(2)

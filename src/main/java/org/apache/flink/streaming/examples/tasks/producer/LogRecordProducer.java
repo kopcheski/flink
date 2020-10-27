@@ -1,6 +1,7 @@
-package org.apache.flink.streaming.examples.tasks;
+package org.apache.flink.streaming.examples.tasks.producer;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.streaming.examples.tasks.LogRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -17,6 +18,8 @@ import java.util.Map;
 import java.util.Properties;
 
 public class LogRecordProducer {
+
+	static long sequence = 0;
 
 	public static void main(String[] args) {
 		Properties properties = new Properties();
@@ -40,7 +43,7 @@ public class LogRecordProducer {
 		kafkaProducer.flush();
 	}
 
-	static List<LogRecord> run() {
+	private static List<LogRecord> run() {
 		List<LogRecord> logRecords = new ArrayList<>();
 		logRecords.add(create("22:30", "start", "A"));
 		logRecords.add(create("22:31", "none", ""));
@@ -65,8 +68,8 @@ public class LogRecordProducer {
 		return logRecords;
 	}
 
-	static LogRecord create(String timestamp, String type, String name) {
-		return new LogRecord(timestamp, type, name);
+	public static LogRecord create(String timestamp, String type, String name) {
+		return new LogRecord(timestamp, type, name, sequence++);
 	}
 
 	static class KafkaJsonDeserializer<T> implements Deserializer {
