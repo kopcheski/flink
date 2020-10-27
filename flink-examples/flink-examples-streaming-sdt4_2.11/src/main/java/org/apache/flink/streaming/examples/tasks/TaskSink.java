@@ -9,7 +9,10 @@ public class TaskSink {
 
 	public static SinkFunction<Task> sink() {
 		return JdbcSink.sink(
-			"insert into public.task (machine, name, start_timestamp, stop_timestamp) values (?,?,?,?)",
+			"insert into public.task (machine, name, start_timestamp) values (?,?,?) " +
+				"on conflict on constraint task_pkey " +
+				"do " +
+				"update set stop_timestamp = ?",
 			(ps, task) -> {
 				ps.setString(1, task.getMachine());
 				ps.setString(2, task.getName());
